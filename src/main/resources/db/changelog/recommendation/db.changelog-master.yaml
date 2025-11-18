@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: AntonS
+      sqlFile:
+        path: recommendation_rule.sql
+        relativeToChangelogFile: true
