@@ -12,7 +12,7 @@ public class RecommendationsRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public RecommendationsRepository(
-            @Qualifier("recommendationsJdbcTemplate") JdbcTemplate jdbcTemplate
+            @Qualifier("writeJdbcTemplate") JdbcTemplate jdbcTemplate
     ) {
         this.jdbcTemplate = jdbcTemplate;
     }

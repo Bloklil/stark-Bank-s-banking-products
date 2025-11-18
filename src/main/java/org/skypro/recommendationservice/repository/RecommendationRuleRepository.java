@@ -22,26 +22,26 @@ public class RecommendationRuleRepository {
     private final ObjectMapper objectMapper;
 
     public RecommendationRuleRepository(
-            @Qualifier("recommendationsJdbcTemplate") JdbcTemplate jdbcTemplate,
+            @Qualifier("writeJdbcTemplate") JdbcTemplate jdbcTemplate,
             ObjectMapper objectMapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
     }
 
-    public void createTableIfNotExists() {
-        String sql = """
-            CREATE TABLE IF NOT EXISTS recommendation_rules (
-                id UUID PRIMARY KEY,
-                product_name VARCHAR(255) NOT NULL,
-                product_id UUID NOT NULL,
-                product_text TEXT,
-                rule_json TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """;
-        jdbcTemplate.execute(sql);
-    }
+//    public void createTableIfNotExists() {
+//        String sql = """
+//            CREATE TABLE IF NOT EXISTS recommendation_rule (
+//                id UUID PRIMARY KEY,
+//                product_name VARCHAR(255) NOT NULL,
+//                product_id UUID NOT NULL,
+//                product_text TEXT,
+//                rule_json TEXT NOT NULL,
+//                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//            )
+//            """;
+//        jdbcTemplate.execute(sql);
+//    }
 
     public RecommendationRule save(RecommendationRule rule) {
         if (rule.getId() == null) {
@@ -52,7 +52,7 @@ public class RecommendationRuleRepository {
             String ruleJson = objectMapper.writeValueAsString(rule.getRule());
 
             String sql = """
-                INSERT INTO recommendation_rules (id, product_name, product_id, product_text, rule_json)
+                INSERT INTO recommendation_rule (id, product_name, product_id, product_text, rule_json)
                 VALUES (?, ?, ?, ?, ?)
                 """;
 
@@ -71,18 +71,18 @@ public class RecommendationRuleRepository {
     }
 
     public List<RecommendationRule> findAll() {
-        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rules";
+        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rule";
         return jdbcTemplate.query(sql, new RecommendationRuleRowMapper());
     }
 
     public Optional<RecommendationRule> findById(UUID id) {
-        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rules WHERE id = ?";
+        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rule WHERE id = ?";
         List<RecommendationRule> rules = jdbcTemplate.query(sql, new RecommendationRuleRowMapper(), id);
         return rules.isEmpty() ? Optional.empty() : Optional.of(rules.get(0));
     }
 
     public Optional<RecommendationRule> findByProductId(UUID productId) {
-        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rules WHERE product_id = ?";
+        String sql = "SELECT id, product_name, product_id, product_text, rule_json FROM recommendation_rule WHERE product_id = ?";
         List<RecommendationRule> rules = jdbcTemplate.query(sql, new RecommendationRuleRowMapper(), productId);
         return rules.isEmpty() ? Optional.empty() : Optional.of(rules.get(0));
     }
