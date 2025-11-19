@@ -21,10 +21,7 @@ public class RecommendationRuleRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
 
-    public RecommendationRuleRepository(
-            @Qualifier("writeJdbcTemplate") JdbcTemplate jdbcTemplate,
-            ObjectMapper objectMapper
-    ) {
+    public RecommendationRuleRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
     }
@@ -118,6 +115,4 @@ public class RecommendationRuleRepository {
             }
         }
     }
-
-
 }

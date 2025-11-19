@@ -33,21 +33,22 @@ public class RecommendationsDataSourceConfiguration {
     public JdbcTemplate writeJdbcTemplate(@Qualifier("writeDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
-//
-//    @Bean(name = "recommendationsDataSource")
-//    public DataSource recommendationsDataSource(@Value("${application.recommendations-db.url}") String recommendationsUrl) {
-//        var dataSource = new HikariDataSource();
-//        dataSource.setJdbcUrl(recommendationsUrl);
-//        dataSource.setDriverClassName("org.h2.Driver");
-//        dataSource.setReadOnly(true);
-//        return dataSource;
-//    }
-//
-//    @Bean(name = "recommendationsJdbcTemplate")
-//    public JdbcTemplate recommendationsJdbcTemplate(
-//            @Qualifier("recommendationsDataSource") DataSource dataSource
-//    ) {
-//        return new JdbcTemplate(dataSource);
-//    }
+
+    //эта база (H2) - для рекомендаций (read-only)
+    @Bean(name = "recommendationsDataSource")
+    public DataSource recommendationsDataSource(@Value("${application.recommendations-db.url}") String recommendationsUrl) {
+        var dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(recommendationsUrl);
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setReadOnly(true);
+        return dataSource;
+    }
+
+    @Bean(name = "recommendationsJdbcTemplate")
+    public JdbcTemplate recommendationsJdbcTemplate(
+            @Qualifier("recommendationsDataSource") DataSource dataSource
+    ) {
+        return new JdbcTemplate(dataSource);
+    }
 
 }
