@@ -5,24 +5,27 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class CacheConfiguration {
-    //сравниваем приходы-расходы
+    //пользование продуктиами
     @Bean
-    public Cache<String, Boolean> transactionSumCompareCache() {
+    public Cache<String, Boolean> productUsageCache() {
         return Caffeine.newBuilder()
                 .maximumSize(10_000)
-                .expireAfterWrite(30, TimeUnit.MINUTES)
+                .expireAfterWrite(1, TimeUnit.HOURS)
+                .recordStats()
                 .build();
     }
-//сравниваем порог суммы транзакций
-    @Bean
-    public Cache<String, Boolean> transactionSumThresholdCache() {
-        return Caffeine.newBuilder()
-                .maximumSize(10_000)
-                .expireAfterWrite(30, TimeUnit.MINUTES)
-                .build();
-    }
+//суммы операций
+@Bean
+public Cache<String, BigDecimal> transactionSumCache() {
+    return Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterWrite(30, TimeUnit.MINUTES) // Суммы могут меняться чаще
+            .recordStats()
+            .build();
+}
 }
