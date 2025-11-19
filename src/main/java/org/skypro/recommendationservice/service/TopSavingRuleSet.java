@@ -20,10 +20,10 @@ public class TopSavingRuleSet implements RecommendationRuleSet {
 
     @Override
     public Optional<Recommendation> check(UUID userId) {
-        boolean usesDebit = repository.productNam(userId, "DEBIT");
-        BigDecimal debitDeposit = repository.depositSumType(userId, "DEBIT");
-        BigDecimal savingDeposits = repository.depositSumType(userId, "SAVING");
-        BigDecimal windrowSumType = repository.windrowSumType(userId, "DEBIT");
+        boolean usesDebit = repository.usesProductType(userId, "DEBIT");
+        BigDecimal debitDeposit = repository.getDepositSumByProductType(userId, "DEBIT");
+        BigDecimal savingDeposits = repository.getDepositSumByProductType(userId, "SAVING");
+        BigDecimal windrowSumType = repository.getWithdrawSumByProductType(userId, "DEBIT");
 
         boolean enougtDep = debitDeposit.compareTo(BigDecimal.valueOf(50_000)) >= 0
                 || savingDeposits.compareTo(BigDecimal.valueOf(50_000)) >= 0;
