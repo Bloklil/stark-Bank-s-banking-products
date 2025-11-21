@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class CacheConfiguration {
-    //пользование продуктиами
+    //пользование продуктами
     @Bean
     public Cache<String, Boolean> productUsageCache() {
         return Caffeine.newBuilder()
