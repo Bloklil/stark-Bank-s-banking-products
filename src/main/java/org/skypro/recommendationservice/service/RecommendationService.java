@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 @Service
 public class RecommendationService {
 
-    private final List<RecommendationRuleSet> releSet;
+    private final List<RecommendationRuleSet> ruleSet;
 
-    public RecommendationService(List<RecommendationRuleSet> releSet) {
-        this.releSet = releSet;
+    public RecommendationService(List<RecommendationRuleSet> ruleSet) {
+        this.ruleSet = ruleSet;
     }
 
     public List<Recommendation> getRecommendations(UUID userId) {
-        return releSet.stream()
+        return ruleSet.stream()
                 .map(rule -> safeCheck(rule, userId))
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());

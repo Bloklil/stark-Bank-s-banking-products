@@ -1,7 +1,6 @@
 package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
-import org.skypro.recommendationservice.repository.RecommendationsRepository;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
