@@ -13,49 +13,54 @@ public class RecommendationsRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public RecommendationsRepository(
-            @Qualifier("recommendationsJdbcTemplate") JdbcTemplate jdbcTemplate
+            @Qualifier("writeJdbcTemplate") JdbcTemplate jdbcTemplate
     ) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public int getRandomTransactionAmount(UUID userId) {
         Integer result = jdbcTemplate.queryForObject(
-                "SELECT amount FROM transactions t WHERE t.user_id = ? LIMIT 1",
+                "SELECT amount FROM TRANSACTIONS t WHERE t.user_id = ? LIMIT 1",
                 Integer.class,
                 userId
         );
         return result != null ? result : 0;
     }
 
-    public boolean productNam(UUID userId, String productType) {
-        String sql = """
-                SELECT COUNT(*) FROM TRANSACTIONS t
-                            JOIN PRODUCTS p ON t.PRODUCT_ID = p.ID
-                            WHERE t.USER_ID = ? AND p.TYPE = ?
-                """;
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId.toString(), productType);
+    public boolean usesProductType(UUID userId, String productType) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM USER_PRODUCTS WHERE user_id = ? AND product_type = ?",
+                Integer.class,
+                userId, productType
+        );
         return count != null && count > 0;
     }
 
-    public BigDecimal depositSumType(UUID userId, String productType) {
-        String sql = """
-                SELECT COALESCE(SUM(t.AMOUNT), 0)
-                            FROM TRANSACTIONS t
-                            JOIN PRODUCTS p ON t.PRODUCT_ID = p.ID
-                            WHERE t.USER_ID = ? AND p.TYPE = ? AND t.TYPE = 'DEPOSIT'
-                """;
-        BigDecimal sum = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId.toString(), productType);
-        return sum == null ? BigDecimal.ZERO : sum;
+    public BigDecimal getDepositSumByProductType(UUID userId, String productType) {
+        BigDecimal result = jdbcTemplate.queryForObject(
+                """
+                SELECT COALESCE(SUM(amount), 0) 
+                FROM TRANSACTIONS t 
+                JOIN USER_PRODUCTS up ON t.user_id = up.user_id AND t.product_id = up.product_id
+                WHERE t.user_id = ? AND up.product_type = ? AND t.transaction_type = 'DEPOSIT'
+                """,
+                BigDecimal.class,
+                userId, productType
+        );
+        return result != null ? result : BigDecimal.ZERO;
     }
 
-    public BigDecimal windrowSumType(UUID userId, String productType) {
-        String sql = """
-                SELECT COALESCE(SUM(t.AMOUNT), 0)
-                            FROM TRANSACTIONS t
-                            JOIN PRODUCTS p ON t.PRODUCT_ID = p.ID
-                            WHERE t.USER_ID = ? AND p.TYPE = ? AND t.TYPE = 'WITHDRAW'
-                """;
-        BigDecimal sum = jdbcTemplate.queryForObject(sql, BigDecimal.class, userId.toString(), productType);
-        return sum == null ? BigDecimal.ZERO : sum;
+    public BigDecimal getWithdrawSumByProductType(UUID userId, String productType) {
+        BigDecimal result = jdbcTemplate.queryForObject(
+                """
+                SELECT COALESCE(SUM(amount), 0) 
+                FROM TRANSACTIONS t 
+                JOIN USER_PRODUCTS up ON t.user_id = up.user_id AND t.product_id = up.product_id
+                WHERE t.user_id = ? AND up.product_type = ? AND t.transaction_type = 'WITHDRAW'
+                """,
+                BigDecimal.class,
+                userId, productType
+        );
+        return result != null ? result : BigDecimal.ZERO;
     }
 }

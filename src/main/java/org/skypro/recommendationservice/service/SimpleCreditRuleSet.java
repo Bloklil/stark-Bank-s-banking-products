@@ -11,21 +11,24 @@ import java.util.UUID;
 @Component
 public class SimpleCreditRuleSet implements RecommendationRuleSet {
 
-    private final RecommendationsRepository repository;
+    private final CachedRecommendationsService cachedService;
     private static final UUID ID = UUID.fromString("ab138afb-f3ba-4a93-b74f-0fcee86d447f");
 
 
-    public SimpleCreditRuleSet(RecommendationsRepository repository) {
-        this.repository = repository;
+    public SimpleCreditRuleSet(CachedRecommendationsService cachedService) {
+        this.cachedService = cachedService;
     }
 
     @Override
     public Optional<Recommendation> check(UUID userId) {
-        boolean hasCredit = repository.productNam(userId, "CREDIT");
-        BigDecimal debitDep = repository.depositSumType(userId, "DEBIT");
-        BigDecimal debitWindrows = repository.windrowSumType(userId, "DEBIT");
+        boolean hasCredit = cachedService.usesProductType(userId, "CREDIT");
+        BigDecimal debitDepositSum = cachedService.getDepositSumByProductType(userId, "DEBIT");
+        BigDecimal debitWithdrawSum = cachedService.getWithdrawSumByProductType(userId, "DEBIT");
 
-        if (!hasCredit && debitDep.compareTo(debitWindrows) > 0 && debitWindrows.compareTo(BigDecimal.valueOf(100_000)) > 0) {
+        if (!hasCredit &&
+                debitDepositSum.compareTo(debitWithdrawSum) > 0 &&
+                debitWithdrawSum.compareTo(BigDecimal.valueOf(100_000)) > 0) {
+
             String text = """
                     Откройте мир выгодных кредитов с нами! Ищете способ быстро и без лишних хлопот получить нужную сумму? 
                     Тогда наш выгодный кредит — именно то, что вам нужно! Мы предлагаем низкие процентные ставки, гибкие условия и индивидуальный 
