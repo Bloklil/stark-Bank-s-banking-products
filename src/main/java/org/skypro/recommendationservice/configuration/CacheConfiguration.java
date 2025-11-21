@@ -19,13 +19,14 @@ public class CacheConfiguration {
                 .recordStats()
                 .build();
     }
-//суммы операций
-@Bean
-public Cache<String, BigDecimal> transactionSumCache() {
-    return Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(30, TimeUnit.MINUTES) // Суммы могут меняться чаще
-            .recordStats()
-            .build();
-}
+
+    //суммы операций
+    @Bean
+    public Cache<String, BigDecimal> transactionSumCache() {
+        return Caffeine.newBuilder()
+                .maximumSize(10_000)
+                .expireAfterWrite(30, TimeUnit.MINUTES) // Суммы могут меняться чаще
+                .recordStats()
+                .build();
+    }
 }
