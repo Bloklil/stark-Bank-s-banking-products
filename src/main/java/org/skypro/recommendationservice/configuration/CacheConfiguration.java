@@ -28,4 +28,13 @@ public Cache<String, BigDecimal> transactionSumCache() {
             .recordStats()
             .build();
 }
+
+    @Bean
+    public Cache<String, Boolean> ruleEvaluationCache() {
+        return Caffeine.newBuilder()
+                .maximumSize(5_000)
+                .expireAfterWrite(15, TimeUnit.MINUTES) // Оценка правил может меняться чаще
+                .recordStats()
+                .build();
+    }
 }
