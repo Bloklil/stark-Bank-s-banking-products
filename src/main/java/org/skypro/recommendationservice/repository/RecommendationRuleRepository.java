@@ -25,20 +25,6 @@ public class RecommendationRuleRepository {
         this.objectMapper = objectMapper;
     }
 
-//    public void createTableIfNotExists() {
-//        String sql = """
-//            CREATE TABLE IF NOT EXISTS recommendation_rule (
-//                id UUID PRIMARY KEY,
-//                product_name VARCHAR(255) NOT NULL,
-//                product_id UUID NOT NULL,
-//                product_text TEXT,
-//                rule_json TEXT NOT NULL,
-//                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-//            )
-//            """;
-//        jdbcTemplate.execute(sql);
-//    }
-
     public RecommendationRule save(RecommendationRule rule) {
         if (rule.getId() == null) {
             rule.setId(UUID.randomUUID());
@@ -84,13 +70,13 @@ public class RecommendationRuleRepository {
     }
 
     public boolean deleteById(UUID id) {
-        String sql = "DELETE FROM recommendation_rules WHERE id = ?";
+        String sql = "DELETE FROM recommendation_rule WHERE id = ?";
         int affectedRows = jdbcTemplate.update(sql, id);
         return affectedRows > 0;
     }
 
     public boolean deleteByProductId(UUID productId) {
-        String sql = "DELETE FROM recommendation_rules WHERE product_id = ?";
+        String sql = "DELETE FROM recommendation_rule WHERE product_id = ?";
         int affectedRows = jdbcTemplate.update(sql, productId);
         return affectedRows > 0;
     }
