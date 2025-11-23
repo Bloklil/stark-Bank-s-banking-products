@@ -25,7 +25,7 @@ public class CachedRecommendationsService {
         String cacheKey = createProductUsageKey(userId, productType);
 
         return productUsageCache.get(cacheKey, key ->
-                repository.productNam(userId, productType)
+                repository.usesProductType(userId, productType)
         );
     }
 
@@ -33,7 +33,7 @@ public class CachedRecommendationsService {
         String cacheKey = createTransactionSumKey(userId, productType, "DEPOSIT");
 
         return transactionSumCache.get(cacheKey, key ->
-                repository.depositSumType(userId, productType)
+                repository.getDepositSumByProductType(userId, productType)
         );
     }
 
@@ -41,7 +41,7 @@ public class CachedRecommendationsService {
         String cacheKey = createTransactionSumKey(userId, productType, "WITHDRAW");
 
         return transactionSumCache.get(cacheKey, key ->
-                repository.windrowSumType(userId, productType)
+                repository.getWithdrawSumByProductType(userId, productType)
         );
     }
 

@@ -1,7 +1,6 @@
 package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
-import org.skypro.recommendationservice.repository.RecommendationsRepository;
 import org.skypro.recommendationservice.util.TextUtils;
 import org.springframework.stereotype.Component;
 
@@ -29,11 +28,8 @@ public class SimpleCreditRuleSet implements RecommendationRuleSet {
         if (!hasCredit &&
                 debitDepositSum.compareTo(debitWithdrawSum) > 0 &&
                 debitWithdrawSum.compareTo(BigDecimal.valueOf(100_000)) > 0) {
-
-        if (!hasCredit && debitDep.compareTo(debitWindrows) > 0 && debitWindrows.compareTo(BigDecimal.valueOf(100_000)) > 0) {
             return Optional.of(new Recommendation(ID, "Простой кредит", TextUtils.SimpleCreditText));
         }
         return Optional.empty();
     }
-
 }
