@@ -3,6 +3,7 @@ package org.skypro.recommendationservice.configuration;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,39 +14,38 @@ import javax.sql.DataSource;
 @Configuration
 public class RecommendationsDataSourceConfiguration {
 
+    @Bean
     @Primary
-    @Bean(name = "writeDataSource")
-    public DataSource writeDataSource(
+    public DataSource postgresDataSource(
             @Value("${spring.datasource.url}") String url,
             @Value("${spring.datasource.username}") String username,
             @Value("${spring.datasource.password}") String password
     ) {
-        HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        return dataSource;
+        return DataSourceBuilder.create()
+                .url(url)
+                .username(username)
+                .password(password)
+                .driverClassName("org.postgresql.Driver")
+                .build();
     }
 
+    @Bean
     @Primary
-    @Bean(name = "writeJdbcTemplate")
-    public JdbcTemplate writeJdbcTemplate(@Qualifier("writeDataSource") DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
+    public JdbcTemplate jdbcTemplate(DataSource postgresDataSource) {
+        return new JdbcTemplate(postgresDataSource);
     }
 
-    //эта база (H2) - для рекомендаций (read-only)
     @Bean(name = "recommendationsDataSource")
-    public DataSource recommendationsDataSource(@Value("${application.recommendations-db.url}") String recommendationsUrl) {
-        var dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(recommendationsUrl);
+    public DataSource h2ReadOnlyDataSource(@Value("${application.recommendations-db.url}") String h2Url) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(h2Url);
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setReadOnly(true);
         return dataSource;
     }
 
     @Bean(name = "recommendationsJdbcTemplate")
-    public JdbcTemplate recommendationsJdbcTemplate(
+    public JdbcTemplate h2ReadOnlyJdbcTemplate(
             @Qualifier("recommendationsDataSource") DataSource dataSource
     ) {
         return new JdbcTemplate(dataSource);

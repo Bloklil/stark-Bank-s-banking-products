@@ -29,4 +29,28 @@ public class RecommendationController {
         body.put("recommendations", recommendations);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/user/{userId}/dynamic")
+    public ResponseEntity<List<Recommendation>> getDynamicRecommendations(@PathVariable UUID userId) {
+        List<Recommendation> recommendations = service.getDynamicRecommendationsOnly(userId);
+        return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/user/{userId}/legacy")
+    public ResponseEntity<List<Recommendation>> getLegacyRecommendations(@PathVariable UUID userId) {
+        List<Recommendation> recommendations = service.getLegacyRecommendationsOnly(userId);
+        return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/user/{userId}/has-recommendations")
+    public ResponseEntity<Boolean> hasRecommendations(@PathVariable UUID userId) {
+        boolean hasRecommendations = service.hasRecommendations(userId);
+        return ResponseEntity.ok(hasRecommendations);
+    }
+
+    @GetMapping("/user/{userId}/count")
+    public ResponseEntity<Integer> getRecommendationsCount(@PathVariable UUID userId) {
+        int count = service.getRecommendationsCount(userId);
+        return ResponseEntity.ok(count);
+    }
 }

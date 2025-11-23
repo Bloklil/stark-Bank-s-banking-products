@@ -1,8 +1,10 @@
 package org.skypro.recommendationservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.UUID;
+
 public class RecommendationRule {
     private UUID id;
     private String productName;

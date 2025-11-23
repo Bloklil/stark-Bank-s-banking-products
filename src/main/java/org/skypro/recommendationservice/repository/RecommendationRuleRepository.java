@@ -1,5 +1,6 @@
 package org.skypro.recommendationservice.repository;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.skypro.recommendationservice.model.RecommendationRule;
