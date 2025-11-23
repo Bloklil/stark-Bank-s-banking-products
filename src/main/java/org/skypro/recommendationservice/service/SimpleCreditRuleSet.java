@@ -2,6 +2,7 @@ package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
 import org.skypro.recommendationservice.repository.RecommendationsRepository;
+import org.skypro.recommendationservice.util.TextUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,15 +27,7 @@ public class SimpleCreditRuleSet implements RecommendationRuleSet {
         BigDecimal debitWindrows = repository.windrowSumType(userId, "DEBIT");
 
         if (!hasCredit && debitDep.compareTo(debitWindrows) > 0 && debitWindrows.compareTo(BigDecimal.valueOf(100_000)) > 0) {
-            String text = """
-                    Откройте мир выгодных кредитов с нами! Ищете способ быстро и без лишних хлопот получить нужную сумму? 
-                    Тогда наш выгодный кредит — именно то, что вам нужно! Мы предлагаем низкие процентные ставки, гибкие условия и индивидуальный 
-                    подход к каждому клиенту. Почему выбирают нас: Быстрое рассмотрение заявки. Мы ценим ваше время, поэтому процесс рассмотрения заявки 
-                    занимает всего несколько часов. Удобное оформление. Подать заявку на кредит можно онлайн на нашем сайте или в мобильном приложении. 
-                    Широкий выбор кредитных продуктов. Мы предлагаем кредиты на различные цели: покупку недвижимости, автомобиля, образование, 
-                    лечение и многое другое. Не упустите возможность воспользоваться выгодными условиями кредитования от нашей компании!
-                    """;
-            return Optional.of(new Recommendation(ID, "Простой кредит", text));
+            return Optional.of(new Recommendation(ID, "Простой кредит", TextUtils.SimpleCreditText));
         }
         return Optional.empty();
     }

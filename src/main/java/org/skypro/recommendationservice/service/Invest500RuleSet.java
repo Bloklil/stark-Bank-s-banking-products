@@ -2,6 +2,7 @@ package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
 import org.skypro.recommendationservice.repository.RecommendationsRepository;
+import org.skypro.recommendationservice.util.TextUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,13 +26,8 @@ public class Invest500RuleSet implements RecommendationRuleSet {
         BigDecimal savingDeposit = repository.depositSumType(userId, "SAVING");
 
         if (usesDebit && !usesInvest && savingDeposit.compareTo(BigDecimal.valueOf(1000)) > 0) {
-            String text = """
-                    Откройте свой путь к успеху с индивидуальным инвестиционным счетом (ИИС) от нашего банка!
-                    Воспользуйтесь налоговыми льготами и начните инвестировать с умом. Пополните счет до конца года и
-                    получите выгоду в виде вычета на взнос в следующем налоговом периоде. Не упустите возможность разнообразить свой портфель,
-                    снизить риски и следить за актуальными рыночными тенденциями. Откройте ИИС сегодня и станьте ближе к финансовой независимости!
-                    """;
-            return Optional.of(new Recommendation(ID, "Invest 500", text));
+            return Optional.of(new Recommendation(
+                    ID, "Invest 500", TextUtils.Invest500Text));
         }
         return Optional.empty();
     }
