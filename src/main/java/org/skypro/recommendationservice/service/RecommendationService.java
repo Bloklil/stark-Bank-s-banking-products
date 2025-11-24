@@ -24,6 +24,7 @@ public class RecommendationService {
         this.ruleSet = ruleSet;
         this.ruleRepository = ruleRepository;
         this.ruleService = ruleService;
+
     }
 
 
