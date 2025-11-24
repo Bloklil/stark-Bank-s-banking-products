@@ -20,7 +20,7 @@ public class RecommendationsRepository {
 
     public int getRandomTransactionAmount(UUID userId) {
         Integer result = jdbcTemplate.queryForObject(
-                "SELECT amount FROM transactions t WHERE t.user_id = ? LIMIT 1",
+                "SELECT amount FROM TRANSACTIONS t WHERE t.user_id = ? LIMIT 1",
                 Integer.class,
                 userId
         );
