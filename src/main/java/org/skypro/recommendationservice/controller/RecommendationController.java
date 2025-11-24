@@ -16,73 +16,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 @RestController
-@RequestMapping("/recommendations")
 public class RecommendationController {
 
-    private final RecommendationService recommendationService;
-    private final RecommendationRuleRepository ruleRepository;
+    private final RecommendationService service;
 
-    // Убираем проблемные зависимости
-    public RecommendationController(RecommendationService recommendationService,
-                                    RecommendationRuleRepository ruleRepository) {
-        this.recommendationService = recommendationService;
-        this.ruleRepository = ruleRepository;
+    public RecommendationController(RecommendationService service) {
+        this.service = service;
     }
 
-    // Основные endpoints
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Recommendation>> getUserRecommendations(@PathVariable UUID userId) {
-        List<Recommendation> recommendations = recommendationService.getRecommendations(userId);
-        return ResponseEntity.ok(recommendations);
+    @GetMapping("/{userId}")
+    public ResponseEntity<Map<String, Object>> getRecomendations(@PathVariable UUID userId) {
+        List<Recommendation> recommendations = service.getRecommendations(userId);
+        Map<String, Object> body = new HashMap<>();
+        body.put("user_id", userId.toString());
+        body.put("recommendations", recommendations);
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping("/user/{userId}/dynamic")
     public ResponseEntity<List<Recommendation>> getDynamicRecommendations(@PathVariable UUID userId) {
-        List<Recommendation> recommendations = recommendationService.getDynamicRecommendationsOnly(userId);
+        List<Recommendation> recommendations = service.getDynamicRecommendationsOnly(userId);
         return ResponseEntity.ok(recommendations);
     }
 
     @GetMapping("/user/{userId}/legacy")
     public ResponseEntity<List<Recommendation>> getLegacyRecommendations(@PathVariable UUID userId) {
-        List<Recommendation> recommendations = recommendationService.getLegacyRecommendationsOnly(userId);
+        List<Recommendation> recommendations = service.getLegacyRecommendationsOnly(userId);
         return ResponseEntity.ok(recommendations);
     }
 
-    // Простой debug endpoint
-    @GetMapping("/debug/{userId}")
-    public ResponseEntity<Map<String, Object>> simpleDebug(@PathVariable UUID userId) {
-        Map<String, Object> debugInfo = new HashMap<>();
-
-        try {
-            // 1. Проверяем динамические правила
-            List<RecommendationRule> rules = ruleRepository.findAll();
-            debugInfo.put("dynamicRulesInDatabase", rules.size());
-
-            // 2. Проверяем рекомендации
-            List<Recommendation> dynamicRecs = recommendationService.getDynamicRecommendationsOnly(userId);
-            List<Recommendation> legacyRecs = recommendationService.getLegacyRecommendationsOnly(userId);
-            List<Recommendation> allRecs = recommendationService.getRecommendations(userId);
-
-            debugInfo.put("dynamicRecommendationsCount", dynamicRecs.size());
-            debugInfo.put("legacyRecommendationsCount", legacyRecs.size());
-            debugInfo.put("allRecommendationsCount", allRecs.size());
-
-            debugInfo.put("dynamicRecommendations", dynamicRecs);
-            debugInfo.put("legacyRecommendations", legacyRecs);
-
-            return ResponseEntity.ok(debugInfo);
-
-        } catch (Exception e) {
-            debugInfo.put("error", e.getMessage());
-            return ResponseEntity.status(500).body(debugInfo);
-        }
+    @GetMapping("/user/{userId}/has-recommendations")
+    public ResponseEntity<Boolean> hasRecommendations(@PathVariable UUID userId) {
+        boolean hasRecommendations = service.hasRecommendations(userId);
+        return ResponseEntity.ok(hasRecommendations);
     }
 
-    // Отдельный endpoint для проверки правил
-    @GetMapping("/debug/rules")
-    public ResponseEntity<List<RecommendationRule>> debugRules() {
-        List<RecommendationRule> rules = ruleRepository.findAll();
-        return ResponseEntity.ok(rules);
+    @GetMapping("/user/{userId}/count")
+    public ResponseEntity<Integer> getRecommendationsCount(@PathVariable UUID userId) {
+        int count = service.getRecommendationsCount(userId);
+        return ResponseEntity.ok(count);
     }
 }
