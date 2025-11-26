@@ -1,6 +1,8 @@
 package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
+import org.skypro.recommendationservice.model.User;
+import org.skypro.recommendationservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -9,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -17,13 +20,16 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
     private final String botToken;
     private final String botUsername;
     private final RecommendationService recommendationService;
+    private final UserRepository userRepository;
 
     public TelegramRecommendationBot(@Value("${telegram.bot.token}") String botToken,
                                      @Value("${telegram.bot.username}") String botUsername,
-                                     RecommendationService recommendationService) {
+                                     RecommendationService recommendationService,
+                                     UserRepository userRepository) {
         this.botToken = botToken;
         this.botUsername = botUsername;
         this.recommendationService = recommendationService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -54,7 +60,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         if (messageText.startsWith("/start")) {
             sendWelcomeMessage(chatId);
         } else if (messageText.startsWith("/recommend")) {
-            handleRecommendationCommand(chatId, messageText);
+            handleRecommendCommand(chatId, messageText);
         } else if (messageText.startsWith("/help")) {
             sendHelpMessage(chatId);
         } else {
@@ -79,49 +85,82 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         sendMessage(chatId, welcomeText);
     }
 
-    private void handleRecommendationCommand(Long chatId, String messageText) throws TelegramApiException {
-        String[] parts = messageText.split(" ");
+
+
+    private void handleRecommendCommand(Long chatId, String messageText) throws TelegramApiException {
+        String[] parts = messageText.split(" ", 2);
 
         if (parts.length != 2) {
-            sendMessage(chatId, "❌ Неправильный формат команды. Используйте: /recommend <user_id>");
+            sendMessage(chatId, "❌ Неправильный формат команды. Используйте: /recommend username");
+            return;
+        }
+
+        String username = parts[1].trim();
+
+        if (username.isEmpty()) {
+            sendMessage(chatId, "❌ Укажите username пользователя. Пример: /recommend ivanov");
             return;
         }
 
         try {
-            UUID userId = UUID.fromString(parts[1]);
-            List<Recommendation> recommendations = recommendationService.getRecommendations(userId);
+            // Ищем пользователя по username
+            Optional<User> userOptional = userRepository.findByUsername(username);
 
-            if (recommendations.isEmpty()) {
-                sendMessage(chatId, "📭 Для пользователя " + userId + " нет доступных рекомендаций.");
-            } else {
-                sendRecommendations(chatId, userId, recommendations);
+            if (userOptional.isEmpty()) {
+                // Если пользователь не найден, проверяем нет ли нескольких похожих
+                List<User> similarUsers = userRepository.findUsersByPartialUsername(username);
+                if (similarUsers.size() > 1) {
+                    sendMultipleUsersFound(chatId, similarUsers);
+                } else {
+                    sendMessage(chatId, "❌ Пользователь не найден");
+                }
+                return;
             }
 
-        } catch (IllegalArgumentException e) {
-            sendMessage(chatId, "❌ Неверный формат UUID. Проверьте правильность идентификатора пользователя.");
+            User user = userOptional.get();
+            List<Recommendation> recommendations = recommendationService.getRecommendations(user.getId());
+
+            sendRecommendations(chatId, user, recommendations);
+
         } catch (Exception e) {
             sendMessage(chatId, "❌ Произошла ошибка при получении рекомендаций: " + e.getMessage());
         }
     }
 
-    private void sendRecommendations(Long chatId, UUID userId, List<Recommendation> recommendations) throws TelegramApiException {
+    private void sendRecommendations(Long chatId, User user, List<Recommendation> recommendations) throws TelegramApiException {
         StringBuilder message = new StringBuilder();
-        message.append("🎯 Персональные рекомендации для пользователя ").append(userId).append("\n\n");
 
-        for (int i = 0; i < recommendations.size(); i++) {
-            Recommendation rec = recommendations.get(i);
-            message.append(i + 1).append(". ").append(rec.getName()).append("\n");
-            message.append("📝 ").append(rec.getText()).append("\n\n");
-        }
+        // Приветствие
+        message.append("👋 Здравствуйте, ").append(user.getFullName()).append("!\n\n");
 
-        message.append("💡 Всего найдено рекомендаций: ").append(recommendations.size());
-
-
-        if (message.length() > 4096) {
-            sendLongMessage(chatId, message.toString());
+        if (recommendations.isEmpty()) {
+            message.append("📭 К сожалению, для вас нет доступных рекомендаций в данный момент.\n\n");
+            message.append("💡 Рекомендуем обратиться к финансовому консультанту для получения персональных предложений.");
         } else {
-            sendMessage(chatId, message.toString());
+            message.append("🎯 Новые продукты для вас:\n\n");
+
+            for (int i = 0; i < recommendations.size(); i++) {
+                Recommendation rec = recommendations.get(i);
+                message.append("▫️ ").append(rec.getName()).append("\n");
+                message.append("   ").append(rec.getText()).append("\n\n");
+            }
+
+            message.append("💼 Всего найдено рекомендаций: ").append(recommendations.size());
         }
+    }
+
+    private void sendMultipleUsersFound(Long chatId, List<User> users) throws TelegramApiException {
+        StringBuilder message = new StringBuilder();
+        message.append("🔍 Найдено несколько пользователей:\n\n");
+
+        for (User user : users) {
+            message.append("• ").append(user.getUsername())
+                    .append(" (").append(user.getFullName()).append(")\n");
+        }
+
+        message.append("\n💡 Уточните username пользователя.");
+
+        sendMessage(chatId, message.toString());
     }
 
     private void sendHelpMessage(Long chatId) throws TelegramApiException {
@@ -152,27 +191,4 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
         message.setText(text);
         execute(message);
     }
-
-    private void sendLongMessage(Long chatId, String longText) throws TelegramApiException {
-
-        int chunkSize = 4096;
-        for (int i = 0; i < longText.length(); i += chunkSize) {
-            String chunk = longText.substring(i, Math.min(longText.length(), i + chunkSize));
-            sendMessage(chatId, chunk);
-        }
-    }
-
-
-    public void sendAdminNotification(String message) throws TelegramApiException {
-
-        String adminChatId = "YOUR_ADMIN_CHAT_ID";
-        sendMessage(Long.parseLong(adminChatId), "🔔 " + message);
-    }
-
-
-    public void sendRecommendationsToUser(String telegramChatId, UUID userId) throws TelegramApiException {
-        List<Recommendation> recommendations = recommendationService.getRecommendations(userId);
-        sendRecommendations(Long.parseLong(telegramChatId), userId, recommendations);
-    }
-
 }
