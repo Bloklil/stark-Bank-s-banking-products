@@ -21,9 +21,6 @@ public class RecommendationRuleService {
         this.ruleEvaluationCache = ruleEvaluationCache;
     }
 
-    /**
-     * Оценить правило для пользователя
-     */
     public boolean evaluateRule(UUID userId, List<RuleCondition> rules) {
         String cacheKey = createRuleEvaluationKey(userId, rules);
 
@@ -108,5 +105,10 @@ public class RecommendationRuleService {
                     .append(":").append(rule.getNegate());
         }
         return keyBuilder.toString();
+    }
+
+    public void clearRuleEvaluationCache() {
+        ruleEvaluationCache.invalidateAll();
+        System.out.println("✅ Rule Evaluation Cache очищен");
     }
 }

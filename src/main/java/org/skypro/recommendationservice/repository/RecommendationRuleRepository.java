@@ -19,10 +19,14 @@ import java.util.UUID;
 public class RecommendationRuleRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper;
+    private final RuleStatsRepository ruleStatsRepository;
 
-    public RecommendationRuleRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
+    public RecommendationRuleRepository(JdbcTemplate jdbcTemplate,
+                                        ObjectMapper objectMapper,
+                                        RuleStatsRepository ruleStatsRepository) {
         this.jdbcTemplate = jdbcTemplate;
         this.objectMapper = objectMapper;
+        this.ruleStatsRepository = ruleStatsRepository;
     }
 
     public RecommendationRule save(RecommendationRule rule) {
@@ -70,15 +74,24 @@ public class RecommendationRuleRepository {
     }
 
     public boolean deleteById(UUID id) {
+        ruleStatsRepository.deleteRuleStats(id);
+
         String sql = "DELETE FROM recommendation_rule WHERE id = ?";
         int affectedRows = jdbcTemplate.update(sql, id);
         return affectedRows > 0;
     }
 
     public boolean deleteByProductId(UUID productId) {
-        String sql = "DELETE FROM recommendation_rule WHERE product_id = ?";
-        int affectedRows = jdbcTemplate.update(sql, productId);
-        return affectedRows > 0;
+        Optional<RecommendationRule> ruleOptional = findByProductId(productId);
+
+        if (ruleOptional.isPresent()) {
+            UUID ruleId = ruleOptional.get().getId();
+            ruleStatsRepository.deleteRuleStats(ruleId);
+            String sql = "DELETE FROM recommendation_rule WHERE product_id = ?";
+            int affectedRows = jdbcTemplate.update(sql, productId);
+            return affectedRows > 0;
+        }
+        return false;
     }
 
     private class RecommendationRuleRowMapper implements RowMapper<RecommendationRule> {
@@ -100,4 +113,6 @@ public class RecommendationRuleRepository {
             }
         }
     }
+
+
 }

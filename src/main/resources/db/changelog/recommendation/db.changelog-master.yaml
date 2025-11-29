@@ -5,3 +5,5 @@ databaseChangeLog:
       sqlFile:
         path: recommendation_rule.sql
         relativeToChangelogFile: true
+  - include:
+      file: db/changelog//recommendation/changes/002-create-rule-stats-table.yaml
