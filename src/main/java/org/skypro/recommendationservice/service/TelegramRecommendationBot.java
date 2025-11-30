@@ -75,11 +75,12 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
                 Я помогу вам получить персональные финансовые рекомендации.
                 
                 Доступные команды:
-                /recommend <user_id> - Получить рекомендации для пользователя
+                /recommend username - Получить рекомендации для пользователя
                 /help - Показать справку
                 
                 Пример использования:
-                /recommend ebe958b5-44be-4adb-9ec2-680a3565c23a
+                /recommend ivanov
+                /recommend petrov
                 """;
 
         sendMessage(chatId, welcomeText);
@@ -112,7 +113,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
                 if (similarUsers.size() > 1) {
                     sendMultipleUsersFound(chatId, similarUsers);
                 } else {
-                    sendMessage(chatId, "❌ Пользователь не найден");
+                    sendMessage(chatId, "❌ Пользователь '" + username + "' не найден");
                 }
                 return;
             }
@@ -168,21 +169,31 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
                 📖 Справка по командам бота:
                 
                 /start - Начать работу с ботом
-                /recommend <user_id> - Получить рекомендации для пользователя
+                /recommend username - Получить рекомендации для пользователя
                 /help - Показать эту справку
                 
                 Примеры:
-                /recommend ebe958b5-44be-4adb-9ec2-680a3565c23a
-                /recommend 550e8400-e29b-41d4-a716-446655440000
+                /recommend ivanov
                 
-                💡 User ID должен быть в формате UUID.
+                💡 Username - это уникальное имя пользователя в системе.
+                Для поиска можно использовать часть имени пользователя.
                 """;
 
         sendMessage(chatId, helpText);
     }
 
     private void sendUnknownCommandMessage(Long chatId) throws TelegramApiException {
-        sendMessage(chatId, "❌ Неизвестная команда. Используйте /help для просмотра доступных команд.");
+        String unknownCommandText = """
+                ❌ Неизвестная команда.
+                
+                Доступные команды:
+                /start - Начать работу
+                /recommend username - Получить рекомендации
+                /help - Показать справку
+                
+                Используйте /help для подробной информации.
+                """;
+        sendMessage(chatId, unknownCommandText);
     }
 
     private void sendMessage(Long chatId, String text) throws TelegramApiException {
