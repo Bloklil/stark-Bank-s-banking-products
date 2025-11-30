@@ -3,6 +3,7 @@ package org.skypro.recommendationservice.controller;
 import org.skypro.recommendationservice.model.ServiceInfo;
 import org.skypro.recommendationservice.service.CachedRecommendationsService;
 import org.skypro.recommendationservice.service.RecommendationRuleService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,27 +15,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/management")
 public class CacheManagementController {
     private final CachedRecommendationsService cachedRecommendationsService;
-    private final BuildProperties buildProperties;
 
-    public CacheManagementController(CachedRecommendationsService cachedRecommendationsService,
-                                     BuildProperties buildProperties) {
+    @Value("${spring.application.name:recommendation-service}")
+    private String serviceName;
+
+    @Value("${app.version:1.0.0}")
+    private String serviceVersion;
+
+    public CacheManagementController(CachedRecommendationsService cachedRecommendationsService) {
         this.cachedRecommendationsService = cachedRecommendationsService;
-        this.buildProperties = buildProperties;
     }
 
     @GetMapping("/info")
     public ResponseEntity<ServiceInfo> getServiceInfo() {
-        try {
-            ServiceInfo info = new ServiceInfo(
-                    buildProperties.getName(),
-                    buildProperties.getVersion()
-            );
-            return ResponseEntity.ok(info);
-        } catch (Exception e) {
-            // Fallback если BuildProperties недоступен
-            ServiceInfo info = new ServiceInfo("recommendation-service", "1.0.0");
-            return ResponseEntity.ok(info);
-        }
+        ServiceInfo info = new ServiceInfo(serviceName, serviceVersion);
+        return ResponseEntity.ok(info);
     }
 
     @PostMapping("/clear-caches")
@@ -47,5 +42,4 @@ public class CacheManagementController {
                     .body("❌ Ошибка при очистке кешей: " + e.getMessage());
         }
     }
-
 }
