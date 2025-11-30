@@ -20,13 +20,13 @@ public class UserRepository {
     }
 
     public Optional<User> findByUsername(String username) {
-        String sql = "SELECT id, username, first_name, last_name, telegram_user_id FROM users WHERE username = ?";
+        String sql = "SELECT ID, USERNAME, FIRST_NAME, LAST_NAME, telegram_user_id FROM USERS WHERE USERNAME = ?";
         List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), username);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     public List<User> findUsersByPartialUsername(String usernamePart) {
-        String sql = "SELECT id, username, first_name, last_name, telegram_user_id FROM users WHERE username LIKE ?";
+        String sql = "SELECT ID, USERNAME, FIRST_NAME, LAST_NAME, telegram_user_id FROM USERS WHERE USERNAME LIKE ?";
         return jdbcTemplate.query(sql, new UserRowMapper(), "%" + usernamePart + "%");
     }
 
@@ -34,10 +34,10 @@ public class UserRepository {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new User(
-                    UUID.fromString(rs.getString("id")),
-                    rs.getString("username"),
-                    rs.getString("first_name"),
-                    rs.getString("last_name"),
+                    UUID.fromString(rs.getString("ID")),
+                    rs.getString("USERNAME"),
+                    rs.getString("FIRST_NAME"),
+                    rs.getString("LAST_NAME"),
                     rs.getLong("telegram_user_id")
             );
         }
