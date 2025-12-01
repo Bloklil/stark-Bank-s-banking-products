@@ -1,10 +1,15 @@
 package org.skypro.recommendationservice.controller;
 
 import org.skypro.recommendationservice.model.Recommendation;
+import org.skypro.recommendationservice.model.RecommendationRule;
+import org.skypro.recommendationservice.repository.RecommendationRuleRepository;
+import org.skypro.recommendationservice.repository.RecommendationsRepository;
+import org.skypro.recommendationservice.service.RecommendationRuleSet;
 import org.skypro.recommendationservice.service.RecommendationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;

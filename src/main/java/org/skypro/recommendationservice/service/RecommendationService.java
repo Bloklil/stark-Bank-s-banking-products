@@ -2,7 +2,9 @@ package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
 import org.skypro.recommendationservice.model.RecommendationRule;
+import org.skypro.recommendationservice.model.RuleStat;
 import org.skypro.recommendationservice.repository.RecommendationRuleRepository;
+import org.skypro.recommendationservice.repository.RuleStatsRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,13 +19,16 @@ public class RecommendationService {
     private final List<RecommendationRuleSet> ruleSet;
     private final RecommendationRuleRepository ruleRepository;
     private final RecommendationRuleService ruleService;
+    private final RuleStatsRepository ruleStatsRepository;
 
     public RecommendationService(List<RecommendationRuleSet> ruleSet,
                                  RecommendationRuleRepository ruleRepository,
-                                 RecommendationRuleService ruleService) {
+                                 RecommendationRuleService ruleService,
+                                 RuleStatsRepository ruleStatsRepository) {
         this.ruleSet = ruleSet;
         this.ruleRepository = ruleRepository;
         this.ruleService = ruleService;
+        this.ruleStatsRepository = ruleStatsRepository;
     }
 
 
@@ -44,29 +49,6 @@ public class RecommendationService {
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }
-
-
-    private List<Recommendation> getDynamicRecommendations(UUID userId) {
-        List<Recommendation> recommendations = new ArrayList<>();
-
-        List<RecommendationRule> rules = ruleRepository.findAll();
-
-        for (RecommendationRule rule : rules) {
-
-            if (ruleService.evaluateRule(userId, rule.getRule())) {
-
-                Recommendation recommendation = new Recommendation(
-                        rule.getId(),
-                        rule.getProductName(),
-                        rule.getProductText()
-                );
-                recommendations.add(recommendation);
-            }
-        }
-
-        return recommendations;
-    }
-
 
     private Optional<Recommendation> safeCheck(RecommendationRuleSet rule, UUID userId) {
         try {
@@ -92,4 +74,29 @@ public class RecommendationService {
     public int getRecommendationsCount(UUID userId) {
         return getRecommendations(userId).size();
     }
+
+    private List<Recommendation> getDynamicRecommendations(UUID userId) {
+        List<Recommendation> recommendations = new ArrayList<>();
+        List<RecommendationRule> rules = ruleRepository.findAll();
+
+        for (RecommendationRule rule : rules) {
+            if (ruleService.evaluateRule(userId, rule.getRule())) {
+                ruleStatsRepository.incrementRuleCounter(rule.getId());
+                Recommendation recommendation = new Recommendation(
+                        rule.getId(),
+                        rule.getProductName(),
+                        rule.getProductText()
+                );
+                recommendations.add(recommendation);
+            }
+        }
+
+        return recommendations;
+    }
+
+    public List<RuleStat> getRuleStats() {
+        return ruleStatsRepository.getAllRuleStats();
+    }
+
+
 }

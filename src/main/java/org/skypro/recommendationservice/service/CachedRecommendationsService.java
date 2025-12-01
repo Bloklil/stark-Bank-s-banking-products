@@ -61,5 +61,8 @@ public class CachedRecommendationsService {
     public void clearCaches() {
         productUsageCache.invalidateAll();
         transactionSumCache.invalidateAll();
+        System.out.println("✅ Все кэши очищены:");
+        System.out.println("   - Product Usage Cache очищен");
+        System.out.println("   - Transaction Sum Cache очищен");
     }
 }
