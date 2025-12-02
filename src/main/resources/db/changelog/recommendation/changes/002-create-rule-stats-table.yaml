@@ -1,0 +1,35 @@
+  databaseChangeLog:
+    - changeSet:
+        id: 002-create-rule-stats-table
+        author: AntonS
+        preConditions:
+          onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: rule_stats
+        changes:
+          - createTable:
+              tableName: rule_stats
+              columns:
+                - column:
+                    name: rule_id
+                    type: UUID
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                - column:
+                    name: count
+                    type: BIGINT
+                    constraints:
+                      nullable: false
+          - addDefaultValue:
+              tableName: rule_stats
+              columnName: count
+              defaultValueNumeric: 0
+          - addForeignKeyConstraint:
+              constraintName: fk_rule_stats_rule_id
+              baseTableName: rule_stats
+              baseColumnNames: rule_id
+              referencedTableName: recommendation_rule
+              referencedColumnNames: id
+              onDelete: CASCADE
