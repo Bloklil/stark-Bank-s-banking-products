@@ -2,6 +2,11 @@
     - changeSet:
         id: 002-create-rule-stats-table
         author: AntonS
+        preConditions:
+          onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: rule_stats
         changes:
           - createTable:
               tableName: rule_stats
@@ -22,6 +27,7 @@
               columnName: count
               defaultValueNumeric: 0
           - addForeignKeyConstraint:
+              constraintName: fk_rule_stats_rule_id
               baseTableName: rule_stats
               baseColumnNames: rule_id
               referencedTableName: recommendation_rule

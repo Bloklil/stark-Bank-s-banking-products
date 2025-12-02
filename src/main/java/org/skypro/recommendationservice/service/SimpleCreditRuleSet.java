@@ -27,10 +27,8 @@ public class SimpleCreditRuleSet implements RecommendationRuleSet {
         BigDecimal debitWithdrawSum = cachedService.getWithdrawSumByProductType(userId, "DEBIT");
 
         if (!hasCredit &&
-                debitDepositSum.compareTo(debitWithdrawSum) > 0 &&
-                debitWithdrawSum.compareTo(BigDecimal.valueOf(100_000)) > 0) {
-
-        if (!hasCredit && debitDep.compareTo(debitWindrows) > 0 && debitWindrows.compareTo(BigDecimal.valueOf(100_000)) > 0) {
+            debitDepositSum.compareTo(debitWithdrawSum) > 0 &&
+            debitWithdrawSum.compareTo(BigDecimal.valueOf(100_000)) > 0) {
             return Optional.of(new Recommendation(ID, "Простой кредит", TextUtils.SimpleCreditText));
         }
         return Optional.empty();

@@ -87,7 +87,6 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
     }
 
 
-
     private void handleRecommendCommand(Long chatId, String messageText) throws TelegramApiException {
         String[] parts = messageText.split(" ", 2);
 
@@ -131,7 +130,6 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
     private void sendRecommendations(Long chatId, User user, List<Recommendation> recommendations) throws TelegramApiException {
         StringBuilder message = new StringBuilder();
 
-        // Приветствие
         message.append("👋 Здравствуйте, ").append(user.getFullName()).append("!\n\n");
 
         if (recommendations.isEmpty()) {
@@ -148,6 +146,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
 
             message.append("💼 Всего найдено рекомендаций: ").append(recommendations.size());
         }
+        sendMessage(chatId, message.toString());
     }
 
     private void sendMultipleUsersFound(Long chatId, List<User> users) throws TelegramApiException {

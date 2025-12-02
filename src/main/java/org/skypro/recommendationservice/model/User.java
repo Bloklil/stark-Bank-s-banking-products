@@ -9,12 +9,11 @@ public class User {
     private String lastName;
     private Long telegramUserId;
 
-    public User(UUID id, String username, String firstName, String lastName, Long telegramUserId) {
+    public User(UUID id, String username, String firstName, String lastName) {
         this.id = id;
         this.username = username;
         this.firstName = firstName;
-        this.lastName = lastName;
-        this.telegramUserId = telegramUserId;
+        this.lastName = lastName;;
     }
 
     public UUID getId() { return id; }
@@ -28,9 +27,6 @@ public class User {
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
-
-    public Long getTelegramUserId() { return telegramUserId; }
-    public void setTelegramUserId(Long telegramUserId) { this.telegramUserId = telegramUserId; }
 
     public String getFullName() {
         return firstName + " " + lastName;
