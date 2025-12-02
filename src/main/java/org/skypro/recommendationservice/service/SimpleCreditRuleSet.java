@@ -1,7 +1,6 @@
 package org.skypro.recommendationservice.service;
 
 import org.skypro.recommendationservice.model.Recommendation;
-import org.skypro.recommendationservice.repository.RecommendationsRepository;
 import org.skypro.recommendationservice.util.TextUtils;
 import org.springframework.stereotype.Component;
 
@@ -33,5 +32,4 @@ public class SimpleCreditRuleSet implements RecommendationRuleSet {
         }
         return Optional.empty();
     }
-
 }
