@@ -3,6 +3,7 @@ package org.skypro.recommendationservice.service;
 import org.skypro.recommendationservice.model.Recommendation;
 import org.skypro.recommendationservice.model.User;
 import org.skypro.recommendationservice.repository.UserRepository;
+import org.skypro.recommendationservice.util.TextUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -69,21 +70,7 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
     }
 
     private void sendWelcomeMessage(Long chatId) throws TelegramApiException {
-        String welcomeText = """
-                🏦 Добро пожаловать в Recommendation Bot! 🏦
-                
-                Я помогу вам получить персональные финансовые рекомендации.
-                
-                Доступные команды:
-                /recommend username - Получить рекомендации для пользователя
-                /help - Показать справку
-                
-                Пример использования:
-                /recommend ivanov
-                /recommend petrov
-                """;
-
-        sendMessage(chatId, welcomeText);
+        sendMessage(chatId, TextUtils.Weclome);
     }
 
 
@@ -164,35 +151,11 @@ public class TelegramRecommendationBot extends TelegramLongPollingBot {
     }
 
     private void sendHelpMessage(Long chatId) throws TelegramApiException {
-        String helpText = """
-                📖 Справка по командам бота:
-                
-                /start - Начать работу с ботом
-                /recommend username - Получить рекомендации для пользователя
-                /help - Показать эту справку
-                
-                Примеры:
-                /recommend ivanov
-                
-                💡 Username - это уникальное имя пользователя в системе.
-                Для поиска можно использовать часть имени пользователя.
-                """;
-
-        sendMessage(chatId, helpText);
+        sendMessage(chatId, TextUtils.helpText);
     }
 
     private void sendUnknownCommandMessage(Long chatId) throws TelegramApiException {
-        String unknownCommandText = """
-                ❌ Неизвестная команда.
-                
-                Доступные команды:
-                /start - Начать работу
-                /recommend username - Получить рекомендации
-                /help - Показать справку
-                
-                Используйте /help для подробной информации.
-                """;
-        sendMessage(chatId, unknownCommandText);
+        sendMessage(chatId, TextUtils.unknownCommandText);
     }
 
     private void sendMessage(Long chatId, String text) throws TelegramApiException {
