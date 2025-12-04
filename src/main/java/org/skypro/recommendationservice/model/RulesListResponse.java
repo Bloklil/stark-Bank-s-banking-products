@@ -1,15 +1,15 @@
 package org.skypro.recommendationservice.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RulesListResponse {
 
     private List<RecommendationRule> data;
-
-    public RulesListResponse(List<RecommendationRule> data) {
-        this.data = data;
-    }
-
-    public List<RecommendationRule> getData() { return data; }
-    public void setData(List<RecommendationRule> data) { this.data = data; }
 }
